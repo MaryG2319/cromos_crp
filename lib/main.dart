@@ -66,6 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    
     initcromos = getCromos();
     cromos = getCromos();
     loadCromoStates();  
@@ -86,6 +87,24 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     setState(() {});
   }
+
+  void applyFilters() {
+    cromos = initcromos.where((cromo) {
+      bool matchEscalao = (selectedEscalao == 'Todos' || cromo.escalao == selectedEscalao);
+      bool matchEstado = true;
+
+      if (selectedEstado != 'Todos') {
+        if (selectedEstado == 'Tem') {
+          matchEstado = cromo.jaTem;
+        } else if (selectedEstado == 'Não Tem') {
+          matchEstado = !cromo.jaTem;
+        }
+      }
+
+      return matchEscalao && matchEstado;
+    }).toList();
+  }
+
 
 
   @override
@@ -120,22 +139,7 @@ class _MyHomePageState extends State<MyHomePage> {
             onChanged: (String? value) {
               setState(() {
                 selectedEscalao = value ?? 'Todos';
-
-                // Filter cromos based on selectedEscalao and selectedEstado
-                cromos = initcromos.where((cromo) {
-                  bool matchEscalao = (selectedEscalao == 'Todos' || cromo.escalao == selectedEscalao);
-                  bool matchEstado = true;
-
-                  if (selectedEstado != 'Todos') {
-                    if (selectedEstado == 'Tem') {
-                      matchEstado = cromo.jaTem;
-                    } else if (selectedEstado == 'Não Tem') {
-                      matchEstado = !cromo.jaTem;
-                    }
-                  }
-
-                  return matchEscalao && matchEstado;
-                }).toList();
+                applyFilters();
               });
             },
 
@@ -158,22 +162,7 @@ class _MyHomePageState extends State<MyHomePage> {
             onChanged: (String? value) {
               setState(() {
                 selectedEstado = value ?? 'Todos';
-
-                // Filter cromos based on selectedEstado and selectedEscalao
-                cromos = initcromos.where((cromo) {
-                  bool matchEstado = true;
-                  if (selectedEstado != 'Todos') {
-                    if (selectedEstado == 'Tem') {
-                      matchEstado = cromo.jaTem;
-                    } else if (selectedEstado == 'Não Tem') {
-                      matchEstado = !cromo.jaTem;
-                    }
-                  }
-
-                  bool matchEscalao = (selectedEscalao == 'Todos' || cromo.escalao == selectedEscalao);
-
-                  return matchEstado && matchEscalao;
-                }).toList();
+                applyFilters();
               });
             },
           ),
@@ -187,9 +176,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 itemBuilder: (BuildContext context, int index) {
                   return GestureDetector(
                     onTap: (){
-                      cromos[index].jaTem = !cromos[index].jaTem;
-                      initcromos[index].jaTem = cromos[index].jaTem;
-                      saveCromoState(cromos[index].id, cromos[index].jaTem);
+                      bool newState = !cromos[index].jaTem;
+                      cromos[index].jaTem = newState;
+                      initcromos.firstWhere((c) => c.id == cromos[index].id).jaTem = newState;
+                      saveCromoState(cromos[index].id, newState);
                       setState(() {});
                     },
                     child: Stack(
