@@ -119,53 +119,79 @@ class _MyHomePageState extends State<MyHomePage> {
       body:
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          //title text and dropdowns
-          Padding(
-            padding: EdgeInsets.only(left: 16, right: 16, top: 16),
-            child: Text('Escalão:', style: boldTextStyle(color: black),),
-          ),          
-          DropdownButton(
-            isExpanded: true,
-            padding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 8),
-            dropdownColor: Colors.white,
-            value: selectedEscalao,
-            items: escaloes.map((String value) {
-              return DropdownMenuItem(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-            onChanged: (String? value) {
-              setState(() {
-                selectedEscalao = value ?? 'Todos';
-                applyFilters();
-              });
-            },
-
-          ),
+        children: [   
+          Padding(padding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
+            child: Text('Cromos: ${initcromos.where((c) => c.jaTem).length} / ${initcromos.length}', style: primaryTextStyle(size: 24, weight: FontWeight.bold, color: black),),
+          ),    
           Padding(
             padding: EdgeInsets.only(left: 16, right: 16, top: 8),
-            child: Text('Estado:', style: boldTextStyle(color: black),),
-          ),  
-          DropdownButton(
-            isExpanded: true,
-            padding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 8),
-            dropdownColor: Colors.white,
-            value: selectedEstado,
-            items: estado.map((String value) {
-              return DropdownMenuItem(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-            onChanged: (String? value) {
-              setState(() {
-                selectedEstado = value ?? 'Todos';
-                applyFilters();
-              });
-            },
+            child: DropdownMenu<String>(
+              inputDecorationTheme: InputDecorationTheme(
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(0),
+                  borderSide: BorderSide(
+                    color: Colors.black,
+                    width: 1,
+                  ),
+                ),
+              ),
+              onSelected: (value) {
+                setState(() {
+                  selectedEscalao = value ?? 'Todos';
+                  applyFilters();
+                });
+              },
+              label: Text('Escalão', style: boldTextStyle(),),
+              initialSelection: selectedEscalao,
+              dropdownMenuEntries: escaloes.map<DropdownMenuEntry<String>>(
+                      (String color) {
+                return DropdownMenuEntry<String>(
+                  value: color,
+                  label: color,
+                  style: MenuItemButton.styleFrom(
+                    backgroundColor: Colors.white,
+                  ),
+                );
+              }).toList(),
+            ),
+          ), 
+          Padding(
+            padding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
+            child: DropdownMenu<String>(
+              inputDecorationTheme: InputDecorationTheme(
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(0),
+                  borderSide: BorderSide(
+                    color: Colors.black,
+                    width: 1,
+                  ),
+                ),
+              ),
+              onSelected: (value) {
+                setState(() {
+                  selectedEstado = value ?? 'Todos';
+                  applyFilters();
+                });
+              },
+              label: Text('Estado', style: boldTextStyle(),),
+              initialSelection: selectedEstado,
+              dropdownMenuEntries: estado.map<DropdownMenuEntry<String>>(
+                      (String color) {
+                return DropdownMenuEntry<String>(
+                  value: color,
+                  label: color,
+                  style: MenuItemButton.styleFrom(
+                    backgroundColor: Colors.white,
+                  ),
+                );
+              }).toList(),
+            ),
           ),
+          
           Expanded(
             child: GridView.builder(
                 scrollDirection: Axis.vertical,
@@ -199,7 +225,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                     Colors.grey,
                                     BlendMode.saturation,
                                   ),
-                            child: Image.asset('assets/${cromos[index].imagem}', fit: BoxFit.fill),
+                            child: CustomImageWidget(
+                                imagePath: 'assets/${cromos[index].imagem}',
+                                placeholder: 'assets/noImage.png'
+                              ),
                           ),
                         ),
                         Align(
@@ -234,6 +263,25 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+
+class CustomImageWidget extends StatelessWidget {
+  final String imagePath;
+  final String placeholder;
+
+  CustomImageWidget({required this.imagePath, required this.placeholder});
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(
+      imagePath,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        return Image.asset(placeholder);
+      },
+    );
+  }
+}
+
 
 class Cromo {
   int id;
