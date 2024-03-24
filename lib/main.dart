@@ -83,6 +83,14 @@ class _MyHomePageState extends State<MyHomePage> {
       bool? savedState = prefs.getBool('cromo_${cromo.id}');
       if (savedState != null) {
         cromo.jaTem = savedState;
+        
+      }
+    }
+    for (var cromo in cromos) {
+      bool? savedState = prefs.getBool('cromo_${cromo.id}');
+      if (savedState != null) {
+        cromo.jaTem = savedState;
+        
       }
     }
     setState(() {});
